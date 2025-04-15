@@ -70,19 +70,6 @@ npm start
 - Improved error handling for database operations
 - Added loading states for async operations
 
-## Todo
-
-- [ ] Implement user authentication with Firebase Auth
-- [ ] Add real-time updates using Firebase listeners
-- [ ] Implement batch operations for cargo updates
-- [ ] Add error boundaries for better error handling
-- [ ] Implement optimistic updates for better UX
-- [ ] Add form validation for cargo and driver inputs
-- [ ] Implement data caching for offline support
-- [ ] Add unit tests for critical components
-- [ ] Implement role-based access control
-- [ ] Add activity logging for cargo status changes
-
 ## Prerequisites
 
 - Node.js (v14 or higher)
