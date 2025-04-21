@@ -7,7 +7,7 @@ export interface Driver {
   homeCity: string;
   lastLocation?: string;
   ownerId: string; // ID of the user who owns this driver or 'all' for public drivers
-  logId: string; // Driver's login ID
+  logid: string; // Driver's login ID
 }
 
 export interface Cargo {

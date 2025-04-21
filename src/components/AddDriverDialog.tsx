@@ -54,8 +54,8 @@ export const AddDriverDialog: React.FC<AddDriverDialogProps> = ({ open, onClose 
       name,
       phone,
       homeCity,
-      logId,
-      ownerId: ownerId === 'all' ? 'all' : ownerId, // Use 'all' or specific user ID
+      logid: logId.toLowerCase(),
+      ownerId: ownerId === 'all' ? 'all' : ownerId,
     };
 
     await addDriver(driver);
