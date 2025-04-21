@@ -77,6 +77,7 @@ npm start
 - Added proper error handling for LocalStorage operations
 - Improved logging for debugging cargo updates
 
+<<<<<<< HEAD
 ## Todo
 
 - [ ] Implement user authentication with Firebase Auth
@@ -90,6 +91,8 @@ npm start
 - [x] Implement role-based access control
 - [ ] Add activity logging for cargo status changes
 
+=======
+>>>>>>> e6f3d6f558c73a9e1203a0cd219111e7c37b40e7
 ## Prerequisites
 
 - Node.js (v14 or higher)
