@@ -49,10 +49,10 @@ export const AccountingPage: React.FC = () => {
     const nonCanceledCargos = filteredCargos.filter(cargo => cargo.status !== 'canceled');
     const totalRevenue = nonCanceledCargos.reduce((sum, cargo) => sum + Number(cargo.rate || 0), 0);
     
-    const deliveredCargos = filteredCargos.filter(cargo => 
-      cargo.status === 'delivered'
+    const unpaidCargos = filteredCargos.filter(cargo => 
+      cargo.status === 'delivered' // Only delivered but not paid
     );
-    const deliveredAmount = deliveredCargos.reduce((sum, cargo) => 
+    const unpaidAmount = unpaidCargos.reduce((sum, cargo) => 
       sum + Number(cargo.rate || 0), 0
     );
     
@@ -64,8 +64,8 @@ export const AccountingPage: React.FC = () => {
     return {
       totalRevenue,
       totalCargos: nonCanceledCargos.length,
-      deliveredAmount,
-      deliveredCount: deliveredCargos.length,
+      unpaidAmount,
+      unpaidCount: unpaidCargos.length,
       paidAmount,
       paidCount: paidCargos.length,
     };
@@ -156,22 +156,22 @@ export const AccountingPage: React.FC = () => {
 
         <Grid item xs={12} md={4}>
           <Card sx={{ 
-            background: `linear-gradient(135deg, ${alpha(theme.palette.secondary.main, 0.1)} 0%, ${alpha(theme.palette.secondary.dark, 0.1)} 100%)`,
+            background: `linear-gradient(135deg, ${alpha(theme.palette.warning.main, 0.1)} 0%, ${alpha(theme.palette.warning.dark, 0.1)} 100%)`,
             backdropFilter: 'blur(10px)',
-            border: `1px solid ${alpha(theme.palette.secondary.main, 0.1)}`,
+            border: `1px solid ${alpha(theme.palette.warning.main, 0.1)}`,
           }}>
             <CardContent>
               <Box sx={{ display: 'flex', alignItems: 'center', mb: 2 }}>
-                <ShippingIcon sx={{ color: theme.palette.secondary.main, mr: 1 }} />
+                <ShippingIcon sx={{ color: theme.palette.warning.main, mr: 1 }} />
                 <Typography variant="h6" color="text.secondary">
-                  Delivered Cargos
+                  Unpaid Cargos
                 </Typography>
               </Box>
-              <Typography variant="h4" sx={{ color: theme.palette.secondary.main }}>
-                ${financialStats.deliveredAmount.toLocaleString()}
+              <Typography variant="h4" sx={{ color: theme.palette.warning.main }}>
+                ${financialStats.unpaidAmount.toLocaleString()}
               </Typography>
               <Typography variant="body2" color="text.secondary">
-                {financialStats.deliveredCount} cargoes
+                {financialStats.unpaidCount} cargoes
               </Typography>
             </CardContent>
           </Card>

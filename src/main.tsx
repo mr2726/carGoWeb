@@ -10,7 +10,7 @@ initializeLocalStorage();
 // Initialize store by fetching data from localStorage
 const store = useStore.getState();
 store.fetchDrivers();
-store.fetchCargos();
+store.initializeSubscriptions();
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>

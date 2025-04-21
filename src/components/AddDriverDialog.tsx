@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Dialog,
   DialogTitle,
@@ -6,12 +6,18 @@ import {
   DialogActions,
   Button,
   TextField,
+  MenuItem,
   Box,
   Typography,
+  FormControl,
+  InputLabel,
+  Select,
   useTheme,
   alpha,
 } from '@mui/material';
 import { useStore } from '../store';
+import { Driver, User } from '../types';
+import { getAllUsers } from '../services/firebase';
 
 interface AddDriverDialogProps {
   open: boolean;
@@ -23,32 +29,41 @@ export const AddDriverDialog: React.FC<AddDriverDialogProps> = ({ open, onClose 
   const addDriver = useStore((state) => state.addDriver);
   const [name, setName] = useState('');
   const [phone, setPhone] = useState('');
-  const [homeLocation, setHomeLocation] = useState('');
+  const [homeCity, setHomeCity] = useState('');
+  const [logId, setLogId] = useState('');
+  const [ownerId, setOwnerId] = useState('all'); // 'all' or user ID
+  const [users, setUsers] = useState<User[]>([]);
   const [error, setError] = useState<string | null>(null);
 
-  const handleSubmit = () => {
-    if (!name.trim()) {
-      setError('Name is required');
-      return;
+  useEffect(() => {
+    if (open) {
+      // Load users when dialog opens
+      getAllUsers().then(users => {
+        setUsers(users);
+      });
     }
-    if (!phone.trim()) {
-      setError('Phone number is required');
-      return;
-    }
-    if (!homeLocation.trim()) {
-      setError('Home location is required');
+  }, [open]);
+
+  const handleSubmit = async () => {
+    if (!name || !phone || !homeCity || !logId) {
+      setError('Please fill in all fields');
       return;
     }
 
-    addDriver({
-      name: name.trim(),
-      phone: phone.trim(),
-      homeCity: homeLocation.trim(),
-    });
+    const driver: Omit<Driver, 'id'> = {
+      name,
+      phone,
+      homeCity,
+      logId,
+      ownerId: ownerId === 'all' ? 'all' : ownerId, // Use 'all' or specific user ID
+    };
 
+    await addDriver(driver);
     setName('');
     setPhone('');
-    setHomeLocation('');
+    setHomeCity('');
+    setLogId('');
+    setOwnerId('all');
     setError(null);
     onClose();
   };
@@ -89,6 +104,19 @@ export const AddDriverDialog: React.FC<AddDriverDialogProps> = ({ open, onClose 
             }}
           />
           <TextField
+            label="Login ID"
+            fullWidth
+            value={logId}
+            onChange={(e) => setLogId(e.target.value)}
+            error={error === 'Login ID is required'}
+            helperText={error === 'Login ID is required' ? error : ''}
+            sx={{
+              '& .MuiOutlinedInput-root': {
+                borderRadius: 2,
+              },
+            }}
+          />
+          <TextField
             label="Phone Number"
             fullWidth
             value={phone}
@@ -104,8 +132,8 @@ export const AddDriverDialog: React.FC<AddDriverDialogProps> = ({ open, onClose 
           <TextField
             label="Home Location"
             fullWidth
-            value={homeLocation}
-            onChange={(e) => setHomeLocation(e.target.value)}
+            value={homeCity}
+            onChange={(e) => setHomeCity(e.target.value)}
             error={error === 'Home location is required'}
             helperText={error === 'Home location is required' ? error : ''}
             sx={{
@@ -114,6 +142,23 @@ export const AddDriverDialog: React.FC<AddDriverDialogProps> = ({ open, onClose 
               },
             }}
           />
+          <FormControl fullWidth required>
+            <InputLabel>Driver Owner</InputLabel>
+            <Select
+              value={ownerId}
+              label="Driver Owner"
+              onChange={(e) => setOwnerId(e.target.value)}
+            >
+              <MenuItem value="all">
+                <em>All Users (Public)</em>
+              </MenuItem>
+              {users.map((user) => (
+                <MenuItem key={user.id} value={user.id}>
+                  {user.name} {user.isAdmin ? '(Admin)' : ''}
+                </MenuItem>
+              ))}
+            </Select>
+          </FormControl>
         </Box>
       </DialogContent>
       <DialogActions sx={{ p: 3, pt: 2 }}>

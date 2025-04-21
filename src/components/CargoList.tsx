@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useCallback } from 'react';
+import React, { useState, useMemo, useCallback, useEffect } from 'react';
 import {
   Table,
   TableBody,
@@ -32,6 +32,7 @@ import LocationOnIcon from '@mui/icons-material/LocationOn';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
 import PersonIcon from '@mui/icons-material/Person';
 import NoteIcon from '@mui/icons-material/Note';
+import { subscribeToCargos } from '../services/firebase';
 
 const statusOrder: CargoStatus[] = [
   'booked',
@@ -85,10 +86,15 @@ export const CargoList: React.FC<CargoListProps> = ({
   hideDateFilter = false,
   hideStatusFilter = false
 }) => {
-  const { cargos, selectedDate, drivers } = useStore();
+  const { cargos, selectedDate, drivers, currentUser, initializeSubscriptions } = useStore();
   const [selectedCargo, setSelectedCargo] = useState<Cargo | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [statusFilter, setStatusFilter] = useState<CargoStatus | 'all'>('all');
+
+  useEffect(() => {
+    const cleanup = initializeSubscriptions();
+    return () => cleanup();
+  }, [initializeSubscriptions]);
 
   const getDriverName = useCallback((driverId: string) => {
     const driver = drivers.find((d) => d.id === driverId);
@@ -115,13 +121,13 @@ export const CargoList: React.FC<CargoListProps> = ({
 
       if (!searchTerm) return true;
 
-      const searchLower = searchTerm.toLowerCase();
+      const searchLower = searchTerm.toString().toLowerCase();
       return (
-        cargo.id.toLowerCase().includes(searchLower) ||
-        cargo.pickupLocation.toLowerCase().includes(searchLower) ||
-        cargo.deliveryLocation.toLowerCase().includes(searchLower) ||
-        (cargo.notes?.toLowerCase().includes(searchLower) ?? false) ||
-        getDriverName(cargo.driverId).toLowerCase().includes(searchLower)
+        String(cargo.cargoId || '').toLowerCase().includes(searchLower) ||
+        String(cargo.pickupLocation || '').toLowerCase().includes(searchLower) ||
+        String(cargo.deliveryLocation || '').toLowerCase().includes(searchLower) ||
+        String(cargo.notes || '').toLowerCase().includes(searchLower) ||
+        String(getDriverName(cargo.driverId) || '').toLowerCase().includes(searchLower)
       );
     });
   }, [cargos, customCargos, selectedDate, statusFilter, searchTerm, getDriverName, hideDateFilter, hideStatusFilter]);
@@ -152,7 +158,7 @@ export const CargoList: React.FC<CargoListProps> = ({
     <Box sx={{ width: '100%' }}>
       <Stack direction="row" spacing={2} sx={{ mb: 3 }}>
         <TextField
-          placeholder="Search by ID, location, notes, or driver..."
+          placeholder="Search by Cargo ID, location, notes, or driver..."
           value={searchTerm}
           onChange={handleSearchChange}
           sx={{ flex: 1 }}
@@ -239,7 +245,7 @@ export const CargoList: React.FC<CargoListProps> = ({
                       color: 'text.secondary',
                     }}
                   >
-                    {cargo.id}
+                    {cargo.cargoId}
                   </Typography>
                 </TableCell>
                 <TableCell>
@@ -276,12 +282,30 @@ export const CargoList: React.FC<CargoListProps> = ({
                 </TableCell>
                 <TableCell>
                   {cargo.notes && (
-                    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-                      <NoteIcon sx={{ color: 'text.secondary', mr: 1, fontSize: 20 }} />
-                      <Typography variant="body2" color="text.secondary">
-                        {cargo.notes}
-                      </Typography>
-                    </Box>
+                    <Tooltip title={cargo.notes} placement="top">
+                      <Box sx={{ 
+                        display: 'flex', 
+                        alignItems: 'center',
+                        maxWidth: '200px',
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                      }}>
+                        <NoteIcon sx={{ color: 'text.secondary', mr: 1, fontSize: 20 }} />
+                        <Typography 
+                          variant="body2" 
+                          color="text.secondary"
+                          sx={{
+                            maxWidth: '200px',
+                            overflow: 'hidden',
+                            textOverflow: 'ellipsis',
+                            whiteSpace: 'nowrap'
+                          }}
+                        >
+                          {cargo.notes.length > 50 ? `${cargo.notes.substring(0, 50)}...` : cargo.notes}
+                        </Typography>
+                      </Box>
+                    </Tooltip>
                   )}
                 </TableCell>
                 <TableCell>

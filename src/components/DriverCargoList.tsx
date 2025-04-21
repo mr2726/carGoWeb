@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect } from 'react';
 import { Box, Typography, Paper, alpha, Tabs, Tab, Chip, useTheme } from '@mui/material';
 import {
   DndContext,
@@ -20,7 +20,7 @@ import { Cargo } from '../types';
 import { useStore } from '../store';
 
 interface DriverCargoListProps {
-  driverId: string | undefined;
+  driverId: string;
 }
 
 interface TabPanelProps {
@@ -60,27 +60,44 @@ function TabPanel(props: TabPanelProps) {
 
 export const DriverCargoList: React.FC<DriverCargoListProps> = ({ driverId }) => {
   const theme = useTheme();
-  const { cargos, updateCargoOrder } = useStore();
-  const [activeTab, setActiveTab] = useState(0);
+  const { cargos, updateCargoOrder, initializeSubscriptions } = useStore();
+  const [activeTab, setActiveTab] = React.useState(0);
 
-  if (!driverId) return null;
+  useEffect(() => {
+    console.log('DriverCargoList: Initializing subscriptions');
+    const cleanup = initializeSubscriptions();
+    return () => {
+      console.log('DriverCargoList: Cleaning up subscriptions');
+      cleanup();
+    };
+  }, [initializeSubscriptions]);
 
-  const driverCargos = cargos
-    .filter((cargo) => cargo.driverId === driverId)
-    .sort((a, b) => a.order - b.order);
+  useEffect(() => {
+    console.log('DriverCargoList: Cargos updated:', cargos);
+  }, [cargos]);
 
+  // Получаем все грузы водителя
+  const driverCargos = cargos.filter((cargo) => cargo.driverId === driverId);
+  console.log('DriverCargoList: Filtered driver cargos:', driverCargos);
+  
+  // Получаем только активные грузы (dispatched и pickedup)
   const activeCargos = driverCargos.filter(
     (cargo) => cargo.status === 'dispatched' || cargo.status === 'pickedup'
-  );
+  ).sort((a, b) => (a.order || 0) - (b.order || 0));
+  console.log('DriverCargoList: Active cargos:', activeCargos);
+  
+  // Получаем забронированные грузы
   const bookedCargos = driverCargos.filter(
     (cargo) => cargo.status === 'booked'
-  );
+  ).sort((a, b) => (a.order || 0) - (b.order || 0));
+  
+  // Получаем историю грузов
   const historyCargos = driverCargos.filter(
     (cargo) => 
       cargo.status !== 'dispatched' && 
       cargo.status !== 'pickedup' && 
       cargo.status !== 'booked'
-  );
+  ).sort((a, b) => (a.order || 0) - (b.order || 0));
 
   const sensors = useSensors(
     useSensor(PointerSensor, {
@@ -95,17 +112,25 @@ export const DriverCargoList: React.FC<DriverCargoListProps> = ({ driverId }) =>
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
+    console.log('Drag end event:', { active, over });
 
     if (over && active.id !== over.id) {
-      const oldIndex = driverCargos.findIndex((cargo) => cargo.id === active.id);
-      const newIndex = driverCargos.findIndex((cargo) => cargo.id === over.id);
+      console.log('Starting cargo reorder...');
+      // Находим индексы только среди активных грузов
+      const oldIndex = activeCargos.findIndex((cargo) => cargo.id === active.id);
+      const newIndex = activeCargos.findIndex((cargo) => cargo.id === over.id);
+      console.log('Indices:', { oldIndex, newIndex });
 
-      const newOrder = arrayMove(driverCargos, oldIndex, newIndex).map((cargo, index) => ({
+      // Перемещаем только активные грузы
+      const newOrder = arrayMove(activeCargos, oldIndex, newIndex).map((cargo, index) => ({
         ...cargo,
-        order: index + 1,
+        order: index + 1, // Начинаем с 1
       }));
+      console.log('New cargo order:', newOrder);
 
+      // Обновляем порядок только для активных грузов
       newOrder.forEach((cargo) => {
+        console.log('Updating cargo order:', { id: cargo.id, order: cargo.order });
         updateCargoOrder(cargo.id, cargo.order);
       });
     }
@@ -160,9 +185,9 @@ export const DriverCargoList: React.FC<DriverCargoListProps> = ({ driverId }) =>
             label={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 Active Cargos
-                {driverCargos.filter(cargo => cargo.status === 'dispatched' || cargo.status === 'pickedup').length > 0 && (
+                {activeCargos.length > 0 && (
                   <Chip 
-                    label={driverCargos.filter(cargo => cargo.status === 'dispatched' || cargo.status === 'pickedup').length} 
+                    label={activeCargos.length} 
                     size="small" 
                     color="primary"
                     sx={{ 
@@ -183,9 +208,9 @@ export const DriverCargoList: React.FC<DriverCargoListProps> = ({ driverId }) =>
             label={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 Booked
-                {driverCargos.filter(cargo => cargo.status === 'booked').length > 0 && (
+                {bookedCargos.length > 0 && (
                   <Chip 
-                    label={driverCargos.filter(cargo => cargo.status === 'booked').length} 
+                    label={bookedCargos.length} 
                     size="small" 
                     color="info"
                     sx={{ 
@@ -206,9 +231,9 @@ export const DriverCargoList: React.FC<DriverCargoListProps> = ({ driverId }) =>
             label={
               <Box sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
                 History
-                {driverCargos.filter(cargo => cargo.status !== 'dispatched' && cargo.status !== 'pickedup' && cargo.status !== 'booked').length > 0 && (
+                {historyCargos.length > 0 && (
                   <Chip 
-                    label={driverCargos.filter(cargo => cargo.status !== 'dispatched' && cargo.status !== 'pickedup' && cargo.status !== 'booked').length} 
+                    label={historyCargos.length} 
                     size="small" 
                     color="default"
                     sx={{ 
@@ -234,7 +259,7 @@ export const DriverCargoList: React.FC<DriverCargoListProps> = ({ driverId }) =>
           collisionDetection={closestCenter}
           onDragEnd={handleDragEnd}
         >
-          <SortableContext items={driverCargos.filter(cargo => cargo.status === 'dispatched' || cargo.status === 'pickedup')} strategy={verticalListSortingStrategy}>
+          <SortableContext items={activeCargos.map(cargo => cargo.id)} strategy={verticalListSortingStrategy}>
             <Box 
               sx={{ 
                 minHeight: 100,
@@ -242,7 +267,7 @@ export const DriverCargoList: React.FC<DriverCargoListProps> = ({ driverId }) =>
                 background: 'transparent',
               }}
             >
-              {driverCargos.filter(cargo => cargo.status === 'dispatched' || cargo.status === 'pickedup').length === 0 ? (
+              {activeCargos.length === 0 ? (
                 <Typography
                   variant="body2"
                   sx={{
@@ -255,7 +280,7 @@ export const DriverCargoList: React.FC<DriverCargoListProps> = ({ driverId }) =>
                   No active cargos
                 </Typography>
               ) : (
-                driverCargos.filter(cargo => cargo.status === 'dispatched' || cargo.status === 'pickedup').map((cargo) => (
+                activeCargos.map((cargo) => (
                   <SortableCargoItem key={cargo.id} cargo={cargo} />
                 ))
               )}
@@ -272,7 +297,7 @@ export const DriverCargoList: React.FC<DriverCargoListProps> = ({ driverId }) =>
             background: 'transparent',
           }}
         >
-          {driverCargos.filter(cargo => cargo.status === 'booked').length === 0 ? (
+          {bookedCargos.length === 0 ? (
             <Typography
               variant="body2"
               sx={{

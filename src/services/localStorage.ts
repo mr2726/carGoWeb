@@ -5,12 +5,12 @@ const DRIVERS_KEY = 'drivers';
 const CARGOS_KEY = 'cargos';
 
 // Helper functions
-const getStorageItem = <T>(key: string): T[] => {
+export const getStorageItem = <T>(key: string): T[] => {
   const item = localStorage.getItem(key);
   return item ? JSON.parse(item) : [];
 };
 
-const setStorageItem = <T>(key: string, value: T[]): void => {
+export const setStorageItem = <T>(key: string, value: T[]): void => {
   localStorage.setItem(key, JSON.stringify(value));
 };
 

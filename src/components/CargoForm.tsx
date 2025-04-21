@@ -26,9 +26,10 @@ export const CargoForm: React.FC<CargoFormProps> = ({
   mode = 'create' 
 }) => {
   const navigate = useNavigate();
-  const { drivers, cargos, addCargo, updateCargo } = useStore();
+  const { drivers, cargos, addCargo, updateCargo, currentUser } = useStore();
   const [formData, setFormData] = useState<Partial<Cargo>>({
     id: '',
+    cargoId: '',
     pickupLocation: '',
     deliveryLocation: '',
     pickupDateTime: new Date().toISOString(),
@@ -56,10 +57,10 @@ export const CargoForm: React.FC<CargoFormProps> = ({
       [field]: value,
     }));
 
-    // Check for duplicate ID when the ID field changes
-    if (field === 'id') {
-      const isDuplicate = cargos.some(cargo => cargo.id === value);
-      setIdError(isDuplicate ? 'This ID already exists' : '');
+    // Check for duplicate cargoId when the cargoId field changes
+    if (field === 'cargoId') {
+      const isDuplicate = cargos.some(cargo => cargo.cargoId === value);
+      setIdError(isDuplicate ? 'This Cargo ID already exists' : '');
     }
   };
 
@@ -80,8 +81,18 @@ export const CargoForm: React.FC<CargoFormProps> = ({
     if (idError) {
       return; // Don't submit if there's an ID error
     }
+
+    if (!formData.cargoId) {
+      setIdError('Cargo ID is required');
+      return;
+    }
+
+    if (!currentUser) {
+      return; // Don't submit if no user is logged in
+    }
     
     const cargoData: Omit<Cargo, 'id'> = {
+      cargoId: formData.cargoId || '',
       pickupLocation: formData.pickupLocation || '',
       deliveryLocation: formData.deliveryLocation || '',
       pickupDateTime: formData.pickupDateTime || new Date().toISOString(),
@@ -91,6 +102,7 @@ export const CargoForm: React.FC<CargoFormProps> = ({
       driverId: formData.driverId || '',
       order: formData.order || 0,
       rate: formData.rate || 0,
+      createdBy: currentUser.id
     };
 
     if (onSubmit) {
@@ -99,163 +111,148 @@ export const CargoForm: React.FC<CargoFormProps> = ({
       if (mode === 'edit' && initialData) {
         await updateCargo(initialData.id, cargoData);
       } else {
-        await addCargo({ ...cargoData, id: formData.id || Date.now().toString() });
+        await addCargo(cargoData);
       }
       navigate('/cargos');
     }
   };
 
   return (
-    <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
-      <Grid container spacing={3}>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Cargo ID"
-            value={formData.id}
-            onChange={handleChange('id')}
-            error={!!idError}
-            helperText={idError}
-            disabled={mode === 'edit'}
-            required={mode === 'create'}
-            sx={{
-              '& .MuiInputBase-input.Mui-disabled': {
-                WebkitTextFillColor: '#666',
-                fontFamily: 'monospace',
-              }
-            }}
-          />
-        </Grid>
-        {mode === 'edit' && (
+    <LocalizationProvider dateAdapter={AdapterDateFns}>
+      <Box component="form" onSubmit={handleSubmit} sx={{ mt: 3 }}>
+        <Grid container spacing={3}>
           <Grid item xs={12}>
             <TextField
+              required
               fullWidth
               label="Cargo ID"
-              value={initialData?.id || ''}
-              disabled
-              sx={{
-                '& .MuiInputBase-input.Mui-disabled': {
-                  WebkitTextFillColor: '#666',
-                  fontFamily: 'monospace',
-                }
+              value={formData.cargoId || ''}
+              onChange={handleChange('cargoId')}
+              error={!!idError}
+              helperText={idError}
+              InputProps={{
+                sx: { borderRadius: 2 }
               }}
             />
           </Grid>
-        )}
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            fullWidth
-            label="Pickup Location"
-            value={formData.pickupLocation}
-            onChange={handleChange('pickupLocation')}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            fullWidth
-            label="Delivery Location"
-            value={formData.deliveryLocation}
-            onChange={handleChange('deliveryLocation')}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DateTimePicker
-              label="Pickup Date/Time"
-              value={new Date(formData.pickupDateTime || '')}
-              onChange={handleDateChange('pickupDateTime')}
-              slotProps={{ textField: { fullWidth: true, required: true } }}
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              label="Pickup Location"
+              value={formData.pickupLocation || ''}
+              onChange={handleChange('pickupLocation')}
+              InputProps={{
+                sx: { borderRadius: 2 }
+              }}
             />
-          </LocalizationProvider>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <LocalizationProvider dateAdapter={AdapterDateFns}>
-            <DateTimePicker
-              label="Delivery Date/Time"
-              value={new Date(formData.deliveryDateTime || '')}
-              onChange={handleDateChange('deliveryDateTime')}
-              slotProps={{ textField: { fullWidth: true, required: true } }}
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              label="Delivery Location"
+              value={formData.deliveryLocation}
+              onChange={handleChange('deliveryLocation')}
             />
-          </LocalizationProvider>
-        </Grid>
-        <Grid item xs={12}>
-          <TextField
-            fullWidth
-            label="Notes"
-            multiline
-            rows={4}
-            value={formData.notes}
-            onChange={handleChange('notes')}
-          />
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            fullWidth
-            select
-            label="Driver"
-            value={formData.driverId}
-            onChange={handleChange('driverId')}
-          >
-            {drivers.map((driver) => (
-              <MenuItem key={driver.id} value={driver.id}>
-                {driver.name}
-              </MenuItem>
-            ))}
-          </TextField>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            fullWidth
-            select
-            label="Status"
-            value={formData.status}
-            onChange={handleChange('status')}
-          >
-            <MenuItem value="booked">Booked</MenuItem>
-            <MenuItem value="dispatched">Dispatched</MenuItem>
-            <MenuItem value="pickedup">Picked Up</MenuItem>
-            <MenuItem value="delivered">Delivered</MenuItem>
-            <MenuItem value="paid">Paid</MenuItem>
-            <MenuItem value="TONU">TONU</MenuItem>
-            <MenuItem value="canceled">Canceled</MenuItem>
-          </TextField>
-        </Grid>
-        <Grid item xs={12} sm={6}>
-          <TextField
-            required
-            fullWidth
-            type="number"
-            label="Rate ($)"
-            value={formData.rate}
-            onChange={handleChange('rate')}
-            InputProps={{
-              startAdornment: '$',
-              inputProps: { min: 0 }
-            }}
-          />
-        </Grid>
-        <Grid item xs={12}>
-          <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
-            <Button
-              variant="outlined"
-              onClick={() => navigate('/cargos')}
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DateTimePicker
+                label="Pickup Date/Time"
+                value={new Date(formData.pickupDateTime || '')}
+                onChange={handleDateChange('pickupDateTime')}
+                slotProps={{ textField: { fullWidth: true, required: true } }}
+              />
+            </LocalizationProvider>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <LocalizationProvider dateAdapter={AdapterDateFns}>
+              <DateTimePicker
+                label="Delivery Date/Time"
+                value={new Date(formData.deliveryDateTime || '')}
+                onChange={handleDateChange('deliveryDateTime')}
+                slotProps={{ textField: { fullWidth: true, required: true } }}
+              />
+            </LocalizationProvider>
+          </Grid>
+          <Grid item xs={12}>
+            <TextField
+              fullWidth
+              label="Notes"
+              multiline
+              rows={4}
+              value={formData.notes}
+              onChange={handleChange('notes')}
+            />
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              select
+              label="Driver"
+              value={formData.driverId}
+              onChange={handleChange('driverId')}
             >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              variant="contained"
-              color="primary"
+              {drivers.map((driver) => (
+                <MenuItem key={driver.id} value={driver.id}>
+                  {driver.name}
+                </MenuItem>
+              ))}
+            </TextField>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              select
+              label="Status"
+              value={formData.status}
+              onChange={handleChange('status')}
             >
-              {mode === 'edit' ? 'Update Cargo' : 'Create Cargo'}
-            </Button>
-          </Box>
+              <MenuItem value="booked">Booked</MenuItem>
+              <MenuItem value="dispatched">Dispatched</MenuItem>
+              <MenuItem value="pickedup">Picked Up</MenuItem>
+              <MenuItem value="delivered">Delivered</MenuItem>
+              <MenuItem value="paid">Paid</MenuItem>
+              <MenuItem value="TONU">TONU</MenuItem>
+              <MenuItem value="canceled">Canceled</MenuItem>
+            </TextField>
+          </Grid>
+          <Grid item xs={12} sm={6}>
+            <TextField
+              required
+              fullWidth
+              type="number"
+              label="Rate ($)"
+              value={formData.rate}
+              onChange={handleChange('rate')}
+              InputProps={{
+                startAdornment: '$',
+                inputProps: { min: 0 }
+              }}
+            />
+          </Grid>
+          <Grid item xs={12}>
+            <Box sx={{ display: 'flex', gap: 2, justifyContent: 'flex-end' }}>
+              <Button
+                variant="outlined"
+                onClick={() => navigate('/cargos')}
+              >
+                Cancel
+              </Button>
+              <Button
+                type="submit"
+                variant="contained"
+                color="primary"
+              >
+                {mode === 'edit' ? 'Update Cargo' : 'Create Cargo'}
+              </Button>
+            </Box>
+          </Grid>
         </Grid>
-      </Grid>
-    </Box>
+      </Box>
+    </LocalizationProvider>
   );
 }; 

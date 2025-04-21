@@ -57,11 +57,26 @@ export const CargoDetails: React.FC<CargoDetailsProps> = ({
   const handleSave = async () => {
     setIsLoading(true);
     try {
-      // Отделяем id от остальных данных и отправляем в Firebase
+      // Сохраняем все поля, кроме id
       const { id, ...cargoData } = editedCargo;
       console.log('Saving cargo with id:', id);
       console.log('Cargo data:', cargoData);
-      await updateCargo(id, cargoData);
+      
+      // Убедимся, что все обязательные поля присутствуют
+      const updatedCargo = {
+        ...cargoData,
+        pickupLocation: cargoData.pickupLocation || '',
+        deliveryLocation: cargoData.deliveryLocation || '',
+        pickupDateTime: cargoData.pickupDateTime || new Date().toISOString(),
+        deliveryDateTime: cargoData.deliveryDateTime || new Date().toISOString(),
+        notes: cargoData.notes || '',
+        status: cargoData.status || 'booked',
+        driverId: cargoData.driverId || '',
+        order: cargoData.order || 0,
+        rate: cargoData.rate || 0,
+      };
+      
+      await updateCargo(id, updatedCargo);
       onClose();
     } catch (error) {
       console.error('Error updating cargo:', error);

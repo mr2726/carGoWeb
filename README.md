@@ -69,18 +69,25 @@ npm start
 - Fixed cargo update functionality in Firestore
 - Improved error handling for database operations
 - Added loading states for async operations
+- Added real-time synchronization for cargo updates across clients
+- Implemented drag-and-drop functionality for cargo rearrangement
+- Added user permissions system for cargo management
+- Added account display with logout functionality in sidebar
+- Fixed date field naming in cargo interface (pickupDateTime, deliveryDateTime)
+- Added proper error handling for LocalStorage operations
+- Improved logging for debugging cargo updates
 
 ## Todo
 
 - [ ] Implement user authentication with Firebase Auth
-- [ ] Add real-time updates using Firebase listeners
-- [ ] Implement batch operations for cargo updates
-- [ ] Add error boundaries for better error handling
-- [ ] Implement optimistic updates for better UX
-- [ ] Add form validation for cargo and driver inputs
-- [ ] Implement data caching for offline support
+- [x] Add real-time updates using Firebase listeners
+- [x] Implement batch operations for cargo updates
+- [x] Add error boundaries for better error handling
+- [x] Implement optimistic updates for better UX
+- [x] Add form validation for cargo and driver inputs
+- [x] Implement data caching for offline support
 - [ ] Add unit tests for critical components
-- [ ] Implement role-based access control
+- [x] Implement role-based access control
 - [ ] Add activity logging for cargo status changes
 
 ## Prerequisites

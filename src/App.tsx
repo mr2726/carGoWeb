@@ -1,5 +1,5 @@
 import React, { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import { Container, CssBaseline, ThemeProvider, createTheme, CircularProgress, Box } from '@mui/material';
 import { DriversPage } from './pages/DriversPage';
 import { AllCargosPage } from './pages/AllCargosPage';
@@ -7,8 +7,11 @@ import { DriverCargosPage } from './pages/DriverCargosPage';
 import { CreateCargoPage } from './pages/CreateCargoPage';
 import { UnpaidDeliveredCargosPage } from './pages/UnpaidDeliveredCargosPage';
 import { AccountingPage } from './pages/AccountingPage';
+import { LoginPage } from './pages/LoginPage';
 import { Navigation } from './components/Navigation';
 import { useStore } from './store';
+import { auth } from './config/firebase';
+import { onAuthStateChanged } from 'firebase/auth';
 
 const theme = createTheme({
   palette: {
@@ -78,38 +81,51 @@ const theme = createTheme({
 
 function App() {
   const { fetchDrivers, fetchCargos, isLoading, initializeSubscriptions } = useStore();
+  const [isAuthenticated, setIsAuthenticated] = React.useState(false);
+  const [isAuthLoading, setIsAuthLoading] = React.useState(true);
 
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        console.log('Starting to load data...');
-        await Promise.all([
-          fetchDrivers(),
-          fetchCargos()
-        ]);
-        console.log('Initial data loaded successfully');
-      } catch (error) {
-        console.error('Error loading initial data:', error);
-      }
-    };
-    
-    loadData();
-    
-    try {
-      console.log('Initializing subscriptions...');
-      const cleanup = initializeSubscriptions();
-      console.log('Subscriptions initialized successfully');
-      
-      return () => {
-        console.log('Cleaning up subscriptions...');
-        cleanup();
-      };
-    } catch (error) {
-      console.error('Error initializing subscriptions:', error);
-    }
+    const unsubscribe = onAuthStateChanged(auth, (user) => {
+      setIsAuthenticated(!!user);
+      setIsAuthLoading(false);
+    });
+
+    return () => unsubscribe();
   }, []);
 
-  if (isLoading) {
+  useEffect(() => {
+    if (isAuthenticated) {
+      const loadData = async () => {
+        try {
+          console.log('Starting to load data...');
+          await Promise.all([
+            fetchDrivers(),
+            fetchCargos()
+          ]);
+          console.log('Initial data loaded successfully');
+        } catch (error) {
+          console.error('Error loading initial data:', error);
+        }
+      };
+      
+      loadData();
+      
+      try {
+        console.log('Initializing subscriptions...');
+        const cleanup = initializeSubscriptions();
+        console.log('Subscriptions initialized successfully');
+        
+        return () => {
+          console.log('Cleaning up subscriptions...');
+          cleanup();
+        };
+      } catch (error) {
+        console.error('Error initializing subscriptions:', error);
+      }
+    }
+  }, [isAuthenticated]);
+
+  if (isAuthLoading) {
     return (
       <ThemeProvider theme={theme}>
         <CssBaseline />
@@ -139,19 +155,18 @@ function App() {
         }}
       >
         <Router>
-          <Navigation />
+          {isAuthenticated && <Navigation />}
           <Box
             component="main"
             sx={{
               flexGrow: 1,
               p: 3,
-              // ml: '240px', // Width of the sidebar
               display: 'flex',
               flexDirection: 'column',
-              alignItems: 'center', // Center horizontally
+              alignItems: 'center',
             }}
           >
-            <Container 
+            <Container
               maxWidth="lg" 
               sx={{ 
                 mt: 4,
@@ -170,12 +185,13 @@ function App() {
               }}
             >
               <Routes>
-                <Route path="/" element={<DriversPage />} />
-                <Route path="/cargos" element={<AllCargosPage />} />
-                <Route path="/create-cargo" element={<CreateCargoPage />} />
-                <Route path="/driver/:driverId" element={<DriverCargosPage />} />
-                <Route path="/unpaid-delivered" element={<UnpaidDeliveredCargosPage />} />
-                <Route path="/accounting" element={<AccountingPage />} />
+                <Route path="/login" element={!isAuthenticated ? <LoginPage /> : <Navigate to="/" />} />
+                <Route path="/" element={isAuthenticated ? <DriversPage /> : <Navigate to="/login" />} />
+                <Route path="/cargos" element={isAuthenticated ? <AllCargosPage /> : <Navigate to="/login" />} />
+                <Route path="/create-cargo" element={isAuthenticated ? <CreateCargoPage /> : <Navigate to="/login" />} />
+                <Route path="/driver/:driverId" element={isAuthenticated ? <DriverCargosPage /> : <Navigate to="/login" />} />
+                <Route path="/unpaid-delivered" element={isAuthenticated ? <UnpaidDeliveredCargosPage /> : <Navigate to="/login" />} />
+                <Route path="/accounting" element={isAuthenticated ? <AccountingPage /> : <Navigate to="/login" />} />
               </Routes>
             </Container>
           </Box>
