@@ -77,7 +77,6 @@ npm start
 - Added proper error handling for LocalStorage operations
 - Improved logging for debugging cargo updates
 
-<<<<<<< HEAD
 ## Todo
 
 - [x] Implement user authentication with Firebase Auth
