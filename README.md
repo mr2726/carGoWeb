@@ -89,7 +89,7 @@ npm start
 - [x] Implement data caching for offline support
 - [ ] Add unit tests for critical components
 - [x] Implement role-based access control
-- [ ] Add activity logging for cargo status changes
+- [ ] Generate and snd Invoice
 
 =======
 >>>>>>> e6f3d6f558c73a9e1203a0cd219111e7c37b40e7
