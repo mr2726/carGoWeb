@@ -80,19 +80,19 @@ npm start
 <<<<<<< HEAD
 ## Todo
 
-- [ ] Implement user authentication with Firebase Auth
+- [x] Implement user authentication with Firebase Auth
 - [x] Add real-time updates using Firebase listeners
 - [x] Implement batch operations for cargo updates
 - [x] Add error boundaries for better error handling
 - [x] Implement optimistic updates for better UX
 - [x] Add form validation for cargo and driver inputs
 - [x] Implement data caching for offline support
-- [ ] Add unit tests for critical components
+- [x] Add unit tests for critical components
 - [x] Implement role-based access control
 - [ ] Generate and snd Invoice
+- [ ] Redisign cargo deltails (Make Page)
+- [ ] Get Pictures and Documents from Firebase Storage
 
-=======
->>>>>>> e6f3d6f558c73a9e1203a0cd219111e7c37b40e7
 ## Prerequisites
 
 - Node.js (v14 or higher)
