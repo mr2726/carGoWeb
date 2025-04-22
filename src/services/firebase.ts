@@ -89,7 +89,7 @@ export const subscribeToDrivers = (userId: string, isAdmin: boolean, callback: (
   const driversCol = collection(db, DRIVERS_COLLECTION);
   const q = isAdmin 
     ? driversCol 
-    : query(driversCol, where('ownerId', '==', userId));
+    : query(driversCol, where('ownerId', 'in', [userId, "all"]));
   return onSnapshot(q, (snapshot) => {
     const drivers = snapshot.docs.map(doc => ({
       id: doc.id,

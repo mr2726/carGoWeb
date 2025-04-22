@@ -20,7 +20,7 @@ import { Cargo } from '../types';
 import { useStore } from '../store';
 
 interface DriverCargoListProps {
-  driverId: string;
+  driverId: any;
 }
 
 interface TabPanelProps {

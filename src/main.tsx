@@ -2,10 +2,11 @@ import React from 'react';
 import ReactDOM from 'react-dom/client';
 import App from './App';
 import { useStore } from './store';
-import { initializeLocalStorage } from './services/initializeData';
+// import initializeLocalStorage from './services/initializeData'; // или с правильным путем
+// import {initializeLocalStorage} from './services/initializeData';
 
 // Initialize localStorage with mock data if empty
-initializeLocalStorage();
+// initializeLocalStorage();
 
 // Initialize store by fetching data from localStorage
 const store = useStore.getState();

@@ -54,7 +54,7 @@ export const useStore = create<StoreState>((set, get) => ({
       }
       
       const drivers = await firebaseService.getDrivers(user.uid, userData.isAdmin);
-      set({ drivers, currentUser: userData });
+      set({ drivers, currentUser: userData});
     } catch (error) {
       console.error('Error fetching drivers:', error);
     } finally {

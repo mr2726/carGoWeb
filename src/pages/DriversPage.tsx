@@ -10,6 +10,7 @@ export const DriversPage: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState('');
 
   const filteredDrivers = useMemo(() => {
+    console.log(drivers)
     return drivers.filter(driver =>
       driver.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
