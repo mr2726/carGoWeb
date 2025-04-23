@@ -64,7 +64,7 @@ export const getAllUsers = async (): Promise<User[]> => {
 // Driver Services
 export const getDrivers = async (userId: string, isAdmin: boolean): Promise<Driver[]> => {
   const driversCol = collection(db, DRIVERS_COLLECTION);
-  
+
   if (isAdmin) {
     // Admins see all drivers
     const driverSnapshot = await getDocs(driversCol);
@@ -74,14 +74,21 @@ export const getDrivers = async (userId: string, isAdmin: boolean): Promise<Driv
     })) as Driver[];
   } else {
     // Regular users see public drivers and their own drivers
-    const q = query(driversCol, 
-      where('ownerId', 'in', ['all', userId])
-    );
+    // if the ownerId is 'all', it means the driver is public and can be seen by all users
+    // console.log(getDoc(driversCol));
+    const q = query(driversCol, where('ownerId', '==', userId || "all"));
     const driverSnapshot = await getDocs(q);
-    return driverSnapshot.docs.map(doc => ({
-      id: doc.id,
-      ...doc.data()
-    })) as Driver[];
+    const driversData: Driver[] = [];
+    driverSnapshot.docs.map(doc => {
+      // Save all drivers to localStorage
+      const driverData = { 
+        id: doc.id,
+        ...doc.data()
+      } as Driver;
+      driversData.push(driverData);
+      setStorageItem('drivers', driversData);
+    });
+    return driversData as Driver[];
   }
 };
 
@@ -89,7 +96,7 @@ export const subscribeToDrivers = (userId: string, isAdmin: boolean, callback: (
   const driversCol = collection(db, DRIVERS_COLLECTION);
   const q = isAdmin 
     ? driversCol 
-    : query(driversCol, where('ownerId', 'in', [userId, "all"]));
+    : query(driversCol, where('ownerId', 'in', [userId, "all"] ));
   return onSnapshot(q, (snapshot) => {
     const drivers = snapshot.docs.map(doc => ({
       id: doc.id,
@@ -275,4 +282,4 @@ export const updateCargo = async (id: string, cargo: Partial<Cargo>): Promise<Ca
 export const deleteCargo = async (id: string): Promise<void> => {
   const cargoRef = doc(db, CARGOS_COLLECTION, id);
   await deleteDoc(cargoRef);
-}; 
+};

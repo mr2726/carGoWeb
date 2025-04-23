@@ -6,6 +6,7 @@
 .pnp.js
 /dist
 /.firebase
+README.md
 
 # testing
 /coverage

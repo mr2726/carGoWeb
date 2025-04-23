@@ -85,7 +85,7 @@ export const DriverCargoList: React.FC<DriverCargoListProps> = ({ driverId }) =>
     (cargo) => cargo.status === 'dispatched' || cargo.status === 'pickedup'
   ).sort((a, b) => (a.order || 0) - (b.order || 0));
   console.log('DriverCargoList: Active cargos:', activeCargos);
-  
+  localStorage.setItem(driverId, JSON.stringify(activeCargos));
   // Получаем забронированные грузы
   const bookedCargos = driverCargos.filter(
     (cargo) => cargo.status === 'booked'
@@ -346,4 +346,4 @@ export const DriverCargoList: React.FC<DriverCargoListProps> = ({ driverId }) =>
       </TabPanel>
     </Paper>
   );
-}; 
+};

@@ -54,7 +54,7 @@ export const useStore = create<StoreState>((set, get) => ({
       }
       
       const drivers = await firebaseService.getDrivers(user.uid, userData.isAdmin);
-      set({ drivers, currentUser: userData});
+      set({ drivers, currentUser: userData });
     } catch (error) {
       console.error('Error fetching drivers:', error);
     } finally {
@@ -169,11 +169,14 @@ export const useStore = create<StoreState>((set, get) => ({
   },
 
   getDriverCargos: (driverId: string) => {
-    return get().cargos.filter((cargo) => cargo.driverId === driverId);
+    console.log(JSON.parse(localStorage.getItem(driverId) || '[]'));
+    // return get().cargos.filter((cargo) => cargo.driverId === driverId);
+    return JSON.parse(localStorage.getItem(driverId) || '[]')
   },
 
   getDriverLastLocation: (driverId: string) => {
     const driverCargos = get().getDriverCargos(driverId);
+    console.log('Driver Cargos:', driverCargos);
     if (driverCargos.length === 0) return '';
     return driverCargos[driverCargos.length - 1].deliveryLocation;
   },

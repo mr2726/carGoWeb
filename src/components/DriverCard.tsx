@@ -16,12 +16,14 @@ export const DriverCard: React.FC<DriverCardProps> = ({ driver }) => {
   const navigate = useNavigate();
   const theme = useTheme();
   const getDriverLastLocation = useStore((state) => state.getDriverLastLocation);
+  const __LocalData = localStorage.getItem(driver.id);
+  const locationData = JSON.parse(__LocalData!);
   const lastLocation = getDriverLastLocation(driver.id);
-
+  console.log(lastLocation)
   const handleClick = () => {
     navigate(`/driver/${driver.id}`);
   };
-
+  console.log(driver.lastLocation)
   return (
     <Card 
       sx={{ 
@@ -129,7 +131,7 @@ export const DriverCard: React.FC<DriverCardProps> = ({ driver }) => {
                 },
               }}
             >
-              {lastLocation}
+              {lastLocation || driver.homeCity}
             </Typography>
           </Box>
         </Stack>
