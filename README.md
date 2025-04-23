@@ -1,4 +1,4 @@
-# CarGo - Web Application
+# CarGo - Web Application <v1.3.5>
 
 CarGo is a web application for cargo transportation management, built with React, TypeScript, Material-UI, and Firebase.
 
