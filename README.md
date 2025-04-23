@@ -35,6 +35,7 @@ CarGo is a web application for cargo transportation management, built with React
 - [ ] All Cargos filter shows all loads (checkbox)
 - [ ] Add new Agent button in admin account
 - [ ] Accounting per Agent (add filter)
+- [ ] Fix bug with lastLocation
 
 ## Known Issues
 > All fixed
