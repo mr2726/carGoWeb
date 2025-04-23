@@ -32,13 +32,10 @@ CarGo is a web application for cargo transportation management, built with React
 - [ ] Generate and snd Invoice
 - [ ] Redisign cargo deltails (Make Page)
 - [ ] Get Pictures and Documents from Firebase Storage
-<<<<<<< HEAD
-=======
 - [ ] All Cargos filter shows all loads (checkbox)
 - [ ] Add new Agent button in admin account
 - [ ] Accounting per Agent (add filter)
 - [x] Fix bug with lastLocation
->>>>>>> 07070bc22b176fadcd82c3b8381da8d75cf8857d
 
 ## Known Issues
 > All fixed
