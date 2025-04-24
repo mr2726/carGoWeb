@@ -19,11 +19,11 @@ export const DriverCard: React.FC<DriverCardProps> = ({ driver }) => {
   const __LocalData = localStorage.getItem(driver.id);
   const locationData = JSON.parse(__LocalData!);
   const lastLocation = getDriverLastLocation(driver.id);
-  console.log(lastLocation)
+  // console.log(lastLocation)
   const handleClick = () => {
     navigate(`/driver/${driver.id}`);
   };
-  console.log(driver.lastLocation)
+  // console.log(driver.lastLocation)
   return (
     <Card 
       sx={{ 

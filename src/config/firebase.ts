@@ -11,10 +11,11 @@ const firebaseConfig = {
   appId: "1:296878766453:web:6e6226b83f5337bc757b3c"
 };
 
-console.log('Initializing Firebase with config:', firebaseConfig);
+// Commenting out console.log statements
+// console.log('Initializing Firebase with config:', firebaseConfig);
 
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 export const auth = getAuth(app);
 
-console.log('Firebase initialized successfully'); 
+// console.log('Firebase initialized successfully');

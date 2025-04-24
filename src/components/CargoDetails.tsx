@@ -59,8 +59,8 @@ export const CargoDetails: React.FC<CargoDetailsProps> = ({
     try {
       // Сохраняем все поля, кроме id
       const { id, ...cargoData } = editedCargo;
-      console.log('Saving cargo with id:', id);
-      console.log('Cargo data:', cargoData);
+      // console.log('Saving cargo with id:', id);
+      // console.log('Cargo data:', cargoData);
       
       // Убедимся, что все обязательные поля присутствуют
       const updatedCargo = {

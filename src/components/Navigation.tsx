@@ -40,11 +40,11 @@ export const Navigation: React.FC = () => {
   const [isAddDriverOpen, setIsAddDriverOpen] = useState(false);
   const [isExpanded, setIsExpanded] = useState(true);
 
-  console.log('Navigation render - currentUser:', currentUser);
-  console.log('Is admin check:', currentUser?.isAdmin);
+  // console.log('Navigation render - currentUser:', currentUser);
+  // console.log('Is admin check:', currentUser?.isAdmin);
 
   useEffect(() => {
-    console.log('Navigation useEffect - currentUser:', currentUser);
+    // console.log('Navigation useEffect - currentUser:', currentUser);
   }, [currentUser]);
 
   const isActive = (path: string) => location.pathname === path;

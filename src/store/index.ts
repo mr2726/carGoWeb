@@ -7,11 +7,11 @@ interface StoreState {
   drivers: Driver[];
   cargos: Cargo[];
   currentUser: User | null;
-  selectedDate: Date;
+  selectedDate: Date | null;
   isLoading: boolean;
   setCargos: (cargos: Cargo[]) => void;
   setDrivers: (drivers: Driver[]) => void;
-  setSelectedDate: (date: Date) => void;
+  setSelectedDate: (date: Date | null) => void;
   setCurrentUser: (user: User | null) => void;
   setIsLoading: (isLoading: boolean) => void;
   fetchDrivers: () => Promise<void>;
@@ -30,7 +30,7 @@ export const useStore = create<StoreState>((set, get) => ({
   drivers: [],
   cargos: [],
   currentUser: null,
-  selectedDate: new Date(),
+  selectedDate: null,
   isLoading: false,
   setCargos: (cargos) => set({ cargos }),
   setDrivers: (drivers) => set({ drivers }),
@@ -43,13 +43,13 @@ export const useStore = create<StoreState>((set, get) => ({
     try {
       const user = auth.currentUser;
       if (!user) {
-        console.log('No user authenticated, skipping drivers fetch');
+        // console.log('No user authenticated, skipping drivers fetch');
         return;
       }
       
       const userData = await firebaseService.getUser(user.uid);
       if (!userData) {
-        console.log('No user data found, skipping drivers fetch');
+        // console.log('No user data found, skipping drivers fetch');
         return;
       }
       
@@ -67,13 +67,13 @@ export const useStore = create<StoreState>((set, get) => ({
     try {
       const user = auth.currentUser;
       if (!user) {
-        console.log('No user authenticated, skipping cargo fetch');
+        // console.log('No user authenticated, skipping cargo fetch');
         return;
       }
       
       const userData = await firebaseService.getUser(user.uid);
       if (!userData) {
-        console.log('No user data found, skipping cargo fetch');
+        // console.log('No user data found, skipping cargo fetch');
         return;
       }
       
@@ -154,12 +154,12 @@ export const useStore = create<StoreState>((set, get) => ({
   },
 
   updateCargoOrder: async (cargoId: string, newOrder: number) => {
-    console.log('Store: updateCargoOrder called with:', { cargoId, newOrder });
+    // console.log('Store: updateCargoOrder called with:', { cargoId, newOrder });
     set({ isLoading: true });
     try {
-      console.log('Store: calling firebaseService.updateCargo');
+      // console.log('Store: calling firebaseService.updateCargo');
       await firebaseService.updateCargo(cargoId, { order: newOrder });
-      console.log('Store: cargo order updated successfully');
+      // console.log('Store: cargo order updated successfully');
     } catch (error) {
       console.error('Store: Error updating cargo order:', error);
       throw error;
@@ -169,24 +169,24 @@ export const useStore = create<StoreState>((set, get) => ({
   },
 
   getDriverCargos: (driverId: string) => {
-    console.log(JSON.parse(localStorage.getItem(driverId) || '[]'));
+    // console.log(JSON.parse(localStorage.getItem(driverId) || '[]'));
     // return get().cargos.filter((cargo) => cargo.driverId === driverId);
     return JSON.parse(localStorage.getItem(driverId) || '[]')
   },
 
   getDriverLastLocation: (driverId: string) => {
     const driverCargos = get().getDriverCargos(driverId);
-    console.log('Driver Cargos:', driverCargos);
+    // console.log('Driver Cargos:', driverCargos);
     if (driverCargos.length === 0) return '';
     return driverCargos[driverCargos.length - 1].deliveryLocation;
   },
 
   initializeSubscriptions: () => {
     const user = auth.currentUser;
-    console.log('Current auth user:', user);
+    // console.log('Current auth user:', user);
     
     if (!user) {
-      console.log('No user authenticated, skipping subscriptions');
+      // console.log('No user authenticated, skipping subscriptions');
       return () => {};
     }
 
@@ -195,16 +195,16 @@ export const useStore = create<StoreState>((set, get) => ({
 
     // Get user data
     firebaseService.getUser(user.uid).then(userData => {
-      console.log('User data loaded in store:', userData);
+      // console.log('User data loaded in store:', userData);
       
       if (!userData) {
-        console.log('No user data found in Firestore');
+        // console.log('No user data found in Firestore');
         return;
       }
 
       // Set user data in store
       set({ currentUser: userData });
-      console.log('Current user set in store:', get().currentUser);
+      // console.log('Current user set in store:', get().currentUser);
       
       // Setup subscriptions only after we have user data
       unsubscribeDrivers = firebaseService.subscribeToDrivers(
@@ -231,4 +231,4 @@ export const useStore = create<StoreState>((set, get) => ({
       if (unsubscribeCargos) unsubscribeCargos();
     };
   },
-})); 
+}));

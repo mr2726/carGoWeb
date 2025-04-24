@@ -105,13 +105,13 @@ export const CargoList: React.FC<CargoListProps> = ({
     const cargoList = customCargos || cargos;
     
     return cargoList.filter((cargo) => {
-      if (!hideDateFilter) {
+      if (!hideDateFilter && selectedDate) {
         const cargoDate = new Date(cargo.pickupDateTime);
         const matchesDate =
           cargoDate.getDate() === selectedDate.getDate() &&
           cargoDate.getMonth() === selectedDate.getMonth() &&
           cargoDate.getFullYear() === selectedDate.getFullYear();
-        
+      
         if (!matchesDate) return false;
       }
       

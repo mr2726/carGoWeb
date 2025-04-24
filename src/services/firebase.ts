@@ -19,12 +19,12 @@ export const createUserDocument = async (userId: string, email: string, name: st
 };
 
 export const getUser = async (userId: string): Promise<User | null> => {
-  console.log('Getting user data for ID:', userId);
+  // console.log('Getting user data for ID:', userId);
   const userDoc = await getDoc(doc(db, 'users', userId));
-  console.log('User doc exists:', userDoc.exists());
+  // console.log('User doc exists:', userDoc.exists());
   
   if (!userDoc.exists()) {
-    console.log('User document does not exist');
+    // console.log('User document does not exist');
     // Create default user document if it doesn't exist
     const user = auth.currentUser;
     if (user) {
@@ -40,7 +40,7 @@ export const getUser = async (userId: string): Promise<User | null> => {
   }
   
   const userData = userDoc.data();
-  console.log('Raw user data from Firestore:', userData);
+  // console.log('Raw user data from Firestore:', userData);
   
   const user: User = {
     id: userDoc.id,
@@ -49,7 +49,7 @@ export const getUser = async (userId: string): Promise<User | null> => {
     isAdmin: Boolean(userData.isAdmin)
   };
   
-  console.log('Processed user data:', user);
+  // console.log('Processed user data:', user);
   return user;
 };
 
@@ -238,8 +238,8 @@ export const addCargo = async (cargo: Omit<Cargo, 'id'>, userId: string): Promis
 
 export const updateCargo = async (id: string, cargo: Partial<Cargo>): Promise<Cargo> => {
   try {
-    console.log('Starting cargo update...');
-    console.log('Document ID:', id);
+    // console.log('Starting cargo update...');
+    // console.log('Document ID:', id);
     
     const cargoRef = doc(db, CARGOS_COLLECTION, id);
     
@@ -250,24 +250,24 @@ export const updateCargo = async (id: string, cargo: Partial<Cargo>): Promise<Ca
       updatedAt: new Date().toISOString()
     };
     
-    console.log('Updating with data:', updatedData);
+    // console.log('Updating with data:', updatedData);
     
     await updateDoc(cargoRef, updatedData);
-    console.log('Update successful');
+    // console.log('Update successful');
     
     // Get current cargos from localStorage
     const currentCargos = getStorageItem<Cargo>('cargos') || [];
-    console.log('Current cargos from localStorage:', currentCargos);
+    // console.log('Current cargos from localStorage:', currentCargos);
     
     // Update the specific cargo in the array
     const updatedCargos = currentCargos.map(c => 
       c.id === id ? { ...c, ...updatedData } : c
     );
-    console.log('Updated cargos array:', updatedCargos);
+    // console.log('Updated cargos array:', updatedCargos);
     
     // Save back to localStorage
     setStorageItem('cargos', updatedCargos);
-    console.log('LocalStorage updated successfully');
+    // console.log('LocalStorage updated successfully');
     
     return {
       ...updatedData,

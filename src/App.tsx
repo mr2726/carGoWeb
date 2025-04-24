@@ -97,12 +97,12 @@ function App() {
     if (isAuthenticated) {
       const loadData = async () => {
         try {
-          console.log('Starting to load data...');
+          // console.log('Starting to load data...');
           await Promise.all([
             fetchDrivers(),
             fetchCargos()
           ]);
-          console.log('Initial data loaded successfully');
+          // console.log('Initial data loaded successfully');
         } catch (error) {
           console.error('Error loading initial data:', error);
         }
@@ -111,12 +111,12 @@ function App() {
       loadData();
       
       try {
-        console.log('Initializing subscriptions...');
+        // console.log('Initializing subscriptions...');
         const cleanup = initializeSubscriptions();
-        console.log('Subscriptions initialized successfully');
+        // console.log('Subscriptions initialized successfully');
         
         return () => {
-          console.log('Cleaning up subscriptions...');
+          // console.log('Cleaning up subscriptions...');
           cleanup();
         };
       } catch (error) {

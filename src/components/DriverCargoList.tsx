@@ -64,27 +64,27 @@ export const DriverCargoList: React.FC<DriverCargoListProps> = ({ driverId }) =>
   const [activeTab, setActiveTab] = React.useState(0);
 
   useEffect(() => {
-    console.log('DriverCargoList: Initializing subscriptions');
+    // console.log('DriverCargoList: Initializing subscriptions');
     const cleanup = initializeSubscriptions();
     return () => {
-      console.log('DriverCargoList: Cleaning up subscriptions');
+      // console.log('DriverCargoList: Cleaning up subscriptions');
       cleanup();
     };
   }, [initializeSubscriptions]);
 
   useEffect(() => {
-    console.log('DriverCargoList: Cargos updated:', cargos);
+    // console.log('DriverCargoList: Cargos updated:', cargos);
   }, [cargos]);
 
   // Получаем все грузы водителя
   const driverCargos = cargos.filter((cargo) => cargo.driverId === driverId);
-  console.log('DriverCargoList: Filtered driver cargos:', driverCargos);
+  // console.log('DriverCargoList: Filtered driver cargos:', driverCargos);
   
   // Получаем только активные грузы (dispatched и pickedup)
   const activeCargos = driverCargos.filter(
     (cargo) => cargo.status === 'dispatched' || cargo.status === 'pickedup'
   ).sort((a, b) => (a.order || 0) - (b.order || 0));
-  console.log('DriverCargoList: Active cargos:', activeCargos);
+  // console.log('DriverCargoList: Active cargos:', activeCargos);
   localStorage.setItem(driverId, JSON.stringify(activeCargos));
   // Получаем забронированные грузы
   const bookedCargos = driverCargos.filter(
@@ -112,25 +112,25 @@ export const DriverCargoList: React.FC<DriverCargoListProps> = ({ driverId }) =>
 
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
-    console.log('Drag end event:', { active, over });
+    // console.log('Drag end event:', { active, over });
 
     if (over && active.id !== over.id) {
-      console.log('Starting cargo reorder...');
+      // console.log('Starting cargo reorder...');
       // Находим индексы только среди активных грузов
       const oldIndex = activeCargos.findIndex((cargo) => cargo.id === active.id);
       const newIndex = activeCargos.findIndex((cargo) => cargo.id === over.id);
-      console.log('Indices:', { oldIndex, newIndex });
+      // console.log('Indices:', { oldIndex, newIndex });
 
       // Перемещаем только активные грузы
       const newOrder = arrayMove(activeCargos, oldIndex, newIndex).map((cargo, index) => ({
         ...cargo,
         order: index + 1, // Начинаем с 1
       }));
-      console.log('New cargo order:', newOrder);
+      // console.log('New cargo order:', newOrder);
 
       // Обновляем порядок только для активных грузов
       newOrder.forEach((cargo) => {
-        console.log('Updating cargo order:', { id: cargo.id, order: cargo.order });
+        // console.log('Updating cargo order:', { id: cargo.id, order: cargo.order });
         updateCargoOrder(cargo.id, cargo.order);
       });
     }
