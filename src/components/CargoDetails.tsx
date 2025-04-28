@@ -14,6 +14,7 @@ import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
 import { AdapterDateFns } from '@mui/x-date-pickers/AdapterDateFns';
 import { Cargo, CargoStatus } from '../types';
 import { useStore } from '../store';
+import { getCargoFileUrl, getNestedCargoFileUrl, getAllCargoFileUrls } from '../services/firebase';
 
 interface CargoDetailsProps {
   cargo: Cargo;
@@ -29,10 +30,31 @@ export const CargoDetails: React.FC<CargoDetailsProps> = ({
   const { drivers, updateCargo, cargos } = useStore();
   const [editedCargo, setEditedCargo] = useState<Cargo>(cargo);
   const [isLoading, setIsLoading] = useState(false);
+  const [fileUrl, setFileUrl] = useState<string | null>(null);
+  const [fileUrls, setFileUrls] = useState<string[]>([]);
 
   useEffect(() => {
     setEditedCargo(cargo);
   }, [cargo]);
+
+  useEffect(() => {
+    console.log('Cargo ID:', cargo.id);
+    const fetchFileUrls = async () => {
+      try {
+        const urls = await getAllCargoFileUrls(cargo.id);
+        console.log('Fetched file URLs:', urls);
+        setFileUrls(urls);
+      } catch (error) {
+        console.error('Error fetching file URLs:', error);
+      }
+    };
+
+    if (cargo.id) {
+      fetchFileUrls();
+    } else {
+      console.warn('No cargo ID provided');
+    }
+  }, [cargo.id]);
 
   const handleChange = (field: keyof Cargo) => (
     event: React.ChangeEvent<HTMLInputElement>
@@ -195,6 +217,42 @@ export const CargoDetails: React.FC<CargoDetailsProps> = ({
               }}
             />
           </Grid>
+          {fileUrl && (
+            <Grid item xs={12}>
+              <a href={fileUrl} target="_blank" rel="noopener noreferrer">
+                <Button variant="outlined" color="primary">Download File</Button>
+              </a>
+            </Grid>
+          )}
+          {fileUrl && (
+            <Grid item xs={12}>
+              <img
+                src={fileUrl}
+                alt={`Cargo ${cargo.id}`}
+                style={{ maxWidth: '100%', height: 'auto', borderRadius: '8px' }}
+              />
+            </Grid>
+          )}
+          {fileUrls.length > 0 && (
+            <Grid item xs={12}>
+              <div style={{ display: 'flex', flexWrap: 'wrap', gap: '10px' }}>
+                {fileUrls.map((url, index) => (
+                  <div key={index} style={{ textAlign: 'center', display: 'flex', flexDirection: 'column' }}>
+                    <img
+                      src={url}
+                      alt={`Cargo file ${index + 1}`}
+                      style={{ maxWidth: '150px', height: 'auto', borderRadius: '8px', marginBottom: '5px' }}
+                    />
+                    <a href={url} target="_blank" rel="noopener noreferrer">
+                      <Button variant="outlined" color="primary" style={{ width: '100%' }}>
+                        Download
+                      </Button>
+                    </a>
+                  </div>
+                ))}
+              </div>
+            </Grid>
+          )}
         </Grid>
       </DialogContent>
       <DialogActions>
@@ -210,4 +268,4 @@ export const CargoDetails: React.FC<CargoDetailsProps> = ({
       </DialogActions>
     </Dialog>
   );
-}; 
+};

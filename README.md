@@ -1,4 +1,4 @@
-# CarGo - Web Application <v1.4.0>
+# CarGo - Web Application <v1.5.0>
 
 CarGo is a web application for cargo transportation management, built with React, TypeScript, Material-UI, and Firebase.
 
@@ -29,20 +29,12 @@ CarGo is a web application for cargo transportation management, built with React
 - [x] Implement data caching for offline support
 - [x] Add unit tests for critical components
 - [x] Implement role-based access control
+- [x] Get Pictures and Documents from Firebase Storage
+- [x] All Cargos filter shows all loads
 - [ ] Generate and snd Invoice
 - [ ] Redisign cargo deltails (Make Page)
-- [ ] Get Pictures and Documents from Firebase Storage
-<<<<<<< HEAD
-- [x] All Cargos filter shows all loads
-=======
-- [ ] All Cargos filter shows all loads (checkbox)
->>>>>>> ac6411a50f99685b460a9dc0e34d37571f491a32
 - [ ] Add new Agent button in admin account
 - [ ] Accounting per Agent (add filter)
-- [x] Fix bug with lastLocation
-
-## Known Issues
-> All fixed
 
 ## Important commands 
 

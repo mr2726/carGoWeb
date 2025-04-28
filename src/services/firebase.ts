@@ -3,6 +3,10 @@ import { db } from '../config/firebase';
 import { Driver, Cargo, User } from '../types';
 import { auth } from '../config/firebase';
 import { setStorageItem, getStorageItem } from './localStorage';
+import { getStorage, ref, getDownloadURL, listAll } from 'firebase/storage';
+
+// Initialize Firebase Storage
+const storage = getStorage();
 
 // Collections
 const DRIVERS_COLLECTION = 'drivers';
@@ -282,4 +286,60 @@ export const updateCargo = async (id: string, cargo: Partial<Cargo>): Promise<Ca
 export const deleteCargo = async (id: string): Promise<void> => {
   const cargoRef = doc(db, CARGOS_COLLECTION, id);
   await deleteDoc(cargoRef);
+};
+
+/**
+ * Get the download URL for a file in Firebase Storage.
+ * @param {string} cargoId - The ID of the cargo.
+ * @returns {Promise<string>} - The download URL of the file.
+ */
+export const getCargoFileUrl = async (cargoId: string): Promise<string> => {
+  try {
+    const fileRef = ref(storage, `cargo-images/${cargoId}.jpg`);
+    const downloadUrl = await getDownloadURL(fileRef);
+    return downloadUrl;
+  } catch (error) {
+    console.error('Error fetching file URL:', error);
+    return '';
+  }
+};
+
+/**
+ * Get the download URL for a nested file in Firebase Storage.
+ * @param {string} cargoId - The ID of the cargo.
+ * @param {string} fileName - The name of the file.
+ * @returns {Promise<string | null>} - The download URL of the nested file.
+ */
+export const getNestedCargoFileUrl = async (cargoId: string, fileName: string): Promise<string | null> => {
+  try {
+    const fileRef = ref(storage, `cargo-images/${cargoId}/${fileName}`);
+    const downloadUrl = await getDownloadURL(fileRef);
+    return downloadUrl;
+  } catch (error) {
+    if ((error as { code?: string }).code === 'storage/object-not-found') {
+      console.warn(`File not found: cargo-images/${cargoId}/${fileName}`);
+      return null;
+    }
+    console.error('Error fetching nested file URL:', error);
+    throw error;
+  }
+};
+
+/**
+ * Get all file URLs in a specific cargo folder in Firebase Storage.
+ * @param {string} cargoId - The ID of the cargo.
+ * @returns {Promise<string[]>} - A list of download URLs for all files in the folder.
+ */
+export const getAllCargoFileUrls = async (cargoId: string): Promise<string[]> => {
+  try {
+    const folderRef = ref(storage, `cargo-images/${cargoId}.jpg`);
+    console.log('Fetching files from folder:', `cargo-images/${cargoId}.jpg`);
+    const result = await listAll(folderRef);
+    console.log('Files found:', result.items.map(item => item.fullPath));
+    const urls = await Promise.all(result.items.map((item) => getDownloadURL(item)));
+    return urls;
+  } catch (error) {
+    console.error('Error fetching file URLs:', error);
+    return [];
+  }
 };
