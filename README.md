@@ -29,16 +29,28 @@ CarGo is a web application for cargo transportation management, built with React
 - [x] Implement data caching for offline support
 - [x] Add unit tests for critical components
 - [x] Implement role-based access control
-- [ ] Generate and snd Invoice
+- [x] All Cargos filter shows all loads
+- [ ] Create and send Invoice (In Cargo details) 
 - [ ] Redisign cargo deltails (Make Page)
 - [ ] Get Pictures and Documents from Firebase Storage
-- [x] All Cargos filter shows all loads
 - [ ] Add new Agent button in admin account
 - [ ] Accounting per Agent (add filter)
-- [x] Fix bug with lastLocation
+- [ ] Add Save button to DriverCargos page
+> When I use the Drag and Drop system it will change only in LocalStorage and save changes to Firebase only after I click on Save Button
+### Todo for corporation Saas
+- [ ] Rebuild Firebase (create companey accout)
+
+```JSON
+{
+  "id" : "<string>"
+  "name" : "<stripng> (companey name)"
+  "date" : "<date> (when the companey buy the plan or get the trail)"
+}
+```
+- [ ] Drivers and all freights need to have `comapaneyID` string in firebase  
 
 ## Known Issues
-> All fixed
+- [ ] Sometime dosn't show driver wwith visibility "All"
 
 ## Important commands 
 
